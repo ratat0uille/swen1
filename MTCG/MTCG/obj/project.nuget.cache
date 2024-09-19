@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "CdnTWoHO4QT6lF84I3LT6+q8vwi+Kj9sgkJ9VuCp6ecNP08a1g+3zklxxPk+j27tLQSzJNHJiEODXwL/cj5qtg==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\lucij\\source\\repos\\swen1\\MTCG\\MTCG\\MTCG.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\lucij\\.nuget\\packages\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
+    "C:\\Users\\lucij\\.nuget\\packages\\microsoft.openapi\\1.2.3\\microsoft.openapi.1.2.3.nupkg.sha512",
+    "C:\\Users\\lucij\\.nuget\\packages\\swashbuckle.aspnetcore\\6.5.0\\swashbuckle.aspnetcore.6.5.0.nupkg.sha512",
+    "C:\\Users\\lucij\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.5.0\\swashbuckle.aspnetcore.swagger.6.5.0.nupkg.sha512",
+    "C:\\Users\\lucij\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.5.0\\swashbuckle.aspnetcore.swaggergen.6.5.0.nupkg.sha512",
+    "C:\\Users\\lucij\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.5.0\\swashbuckle.aspnetcore.swaggerui.6.5.0.nupkg.sha512"
+  ],
+  "logs": []
+}
