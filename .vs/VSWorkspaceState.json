@@ -1,6 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\MTCG",
+    "\\MTCG\\MTCG"
   ],
+  "SelectedNode": "\\MTCG\\MTCG\\Controllers",
   "PreviewInSolutionExplorer": false
 }
