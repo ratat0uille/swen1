@@ -51,15 +51,29 @@ namespace MTCG.Server
                     using (client)
                     await using (NetworkStream stream = client.GetStream())
                     {
-                        byte[] buffer = new byte[1024];
-                        int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                        string request = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                        using StreamReader reader = new StreamReader(stream, Encoding.UTF8);
+                        await using StreamWriter writer = new StreamWriter(stream, Encoding.UTF8) { AutoFlush = true };
+
+                        string request = await reader.ReadLineAsync();
+                        if (string.IsNullOrEmpty(request))
+                        {
+                            return;
+                        }
+
+                        string line;
+                        while (!string.IsNullOrEmpty(line = await reader.ReadLineAsync()))
+                        {
+                            //process headers?
+                        }
+
                         Console.WriteLine("Received request:");
                         Console.WriteLine(request);
+
                         Router router = new Router();
                         string response = router.Route(request);
-                        byte[] responseBytes = Encoding.UTF8.GetBytes(response);
-                        await stream.WriteAsync(responseBytes, 0, responseBytes.Length);
+
+                        await writer.WriteAsync(response);
+
 
                     }
                 }
