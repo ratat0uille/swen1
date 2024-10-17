@@ -51,24 +51,25 @@ namespace MTCG.Server
 
                     Router router = new Router();
                     string routeResult = router.Route(request);
+                    
 
-                    if (routeResult == "Login")
+                    switch (routeResult)
                     {
-                        Login(request, stream);
-                    }else if (routeResult == "Register")
-                    {
-                        Register(request, stream);
+                        case "NotFound":
+                            WriteResponse(NotFound(), writer);
+                            break;
+                        case "BadRequest":
+                            WriteResponse(BadRequest(), writer);
+                            break;
+                        case "Login":
+                            WriteResponse(Login(request, stream), writer);
+                            break;
+                        case "Register":
+                            WriteResponse(Register(request, stream), writer);
+                            break;
                     }
 
-                    string response = routeResult switch
-                    {
-                        "BadRequest" => GenerateResponse("400 Bad Request", "Bad Request"),
-                        "NotFound" => GenerateResponse("404 Not Found", "Not Found")
-                        //_ => GenerateResponse("200 OK", "Operation successful")
-                    };
-                    Console.WriteLine(response);
-                    await writer.WriteAsync(response);
-                    await writer.FlushAsync();
+
                 }
             }
             catch (Exception exception)
@@ -87,23 +88,31 @@ namespace MTCG.Server
                    $"{content}";
         }
 
+        static async void WriteResponse(string response, StreamWriter writer)
+        {
+            Console.WriteLine(response);
+            await writer.WriteAsync(response);
+            await writer.FlushAsync();
+        }
+
         public class Users
         {
             public string Username { get; set; }
             public string Password { get; set; }
         }
-        static void Login(HttpRequest request, Stream stream)
+        static string Login(HttpRequest request, Stream stream)
         {
             // 200 OK
             // 401 Unauthorized
+            string response;
             var (username, password) = Parser.BodyParser(stream, request);
 
             string filePath = "../UserData/users.json";
 
             if (!File.Exists(filePath))
             {
-                GenerateResponse("404", "Not Found");
-                return;
+                return GenerateResponse("404", "Not Found");
+
             }
 
             var users = JsonConvert.DeserializeObject<List<Users>>(File.ReadAllText(filePath)) ?? new List<Users>();
@@ -112,22 +121,21 @@ namespace MTCG.Server
 
             if (user != null)
             {
-                GenerateResponse("200", "OK");
-                return;
+                return GenerateResponse("200", "OK");
             }
             else
             {
-                GenerateResponse("401", "Invalid username or password");
-                return;
+                return GenerateResponse("401", "Invalid username or password");
+
             }
 
         }
 
-        static void Register(HttpRequest request, Stream stream)
+        static string Register(HttpRequest request, Stream stream)
         {
             // 201 created
             // 409 User already exists
-            
+
             var (username, password) = Parser.BodyParser(stream, request);
             
             string filePath = "../UserData/users.json";
@@ -142,16 +150,25 @@ namespace MTCG.Server
             if (users.Exists(user => user.Username == username))
             {
 
-                GenerateResponse("409", "User already exists");
-                return;
+                return GenerateResponse("409", "User already exists");
             }
 
             users.Add(new Users{Username = username, Password = password});
             
             File.WriteAllText(filePath, JsonConvert.SerializeObject(users, Formatting.Indented));
             
-            GenerateResponse("201", "User created");
+            return GenerateResponse("201", "User created");
+            
+        }
 
+        static string BadRequest()
+        {
+            return GenerateResponse("400", "Bad Request");
+        }
+
+        static string NotFound()
+        {
+            return GenerateResponse("404", "Not Found");
         }
 
     }
