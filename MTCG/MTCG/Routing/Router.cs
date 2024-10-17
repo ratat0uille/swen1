@@ -1,41 +1,27 @@
-﻿namespace MTCG.Routing
+﻿
+namespace MTCG.Routing
 {
     public class Router
     {
-        public string Route(string request)
+        public string Route(HttpRequest request)
         {
-            string[] requestParts = request.Split(' ');
-            if (requestParts.Length > 2)
+            if (request == null || string.IsNullOrEmpty(request.Method) || string.IsNullOrEmpty(request.Path))
             {
-                return "HTTP/1.1 400 Bad Request\r\n\r\n";
+                return "BadRequest";
             }
 
-            string method = requestParts[0];
-            string path = requestParts[1];
+            string method = request.Method;
+            string path = request.Path;
 
-            if (method == "GET" && path == "/login")
+            return path switch
             {
-                return "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 5\r\n\r\nLogin";
-            }
-            else if (method == "GET" && path == "/register")
-            {
-                return "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 8\r\n\r\nRegister";
-            }
-            else if (method == "POST" && path == "/login")
-            {
-                //muss noch login logic und so implementieren
-                return "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 9\r\n\r\nLogged In";
-            }
-            else if (method == "POST" && path == "/register")
-            {
-                //und registration logic
-                return "HTTP/1.1 201 Created\r\nContent-Type: text/plain\r\nContent-Length: 10\r\n\r\nRegistered";
-            }
-            else
-            {
-                return "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: 9\r\n\r\nNot Found";
-            }
-
+                "/" => "Homepage",
+                "/login" when method == "GET" => "GetLogin",
+                "/register" when method == "GET" => "GetRegister",
+                "/register" when method == "POST" => "PostRegister",
+                "/login" when method == "POST" => "PostLogin",
+                _ => "NotFound"
+            };
         }
     }
 }
