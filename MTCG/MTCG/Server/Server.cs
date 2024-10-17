@@ -14,6 +14,7 @@ namespace MTCG.Server
 {
     internal class Server
     {
+        /*----------------------------------START-ASYNC-------------------------------------*/
         public static async Task StartAsync()
         {
             TcpListener listener = new TcpListener(IPAddress.Any, 8080);
@@ -39,6 +40,7 @@ namespace MTCG.Server
             }
         }
 
+        /*--------------------------------HANDLE-CLIENT-ASYNC---------------------------------------*/
         static async Task HandleClientAsync(TcpClient client)
         {
             try
@@ -78,6 +80,15 @@ namespace MTCG.Server
             }
         }
 
+        /*----------------------------------CLASS-USERS-------------------------------------*/
+        //sollt ich probably in seiner eigenen file machen aber kein bock jetzt
+        public class Users
+        {
+            public string Username { get; set; }
+            public string Password { get; set; }
+        }
+
+        /*--------------------------------GENERATE-RESPONSE---------------------------------------*/
         static string GenerateResponse(string status, string content)
         {
             return $"HTTP/1.1 {status}\r\n" +
@@ -88,6 +99,7 @@ namespace MTCG.Server
                    $"{content}";
         }
 
+        /*----------------------------------WRITE-RESPONSE-------------------------------------*/
         static async void WriteResponse(string response, StreamWriter writer)
         {
             Console.WriteLine(response);
@@ -95,11 +107,7 @@ namespace MTCG.Server
             await writer.FlushAsync();
         }
 
-        public class Users
-        {
-            public string Username { get; set; }
-            public string Password { get; set; }
-        }
+        /*----------------------------------LOGIN-METHOD-------------------------------------*/
         static string Login(HttpRequest request, Stream stream)
         {
             // 200 OK
@@ -131,6 +139,7 @@ namespace MTCG.Server
 
         }
 
+        /*----------------------------------REGISTER-METHOD-------------------------------------*/
         static string Register(HttpRequest request, Stream stream)
         {
             // 201 created
@@ -161,11 +170,13 @@ namespace MTCG.Server
             
         }
 
+        /*----------------------------------400-BAD-REQUEST-METHOD-------------------------------------*/
         static string BadRequest()
         {
             return GenerateResponse("400", "Bad Request");
         }
 
+        /*----------------------------------404-NOT-FOUND-METHOD-------------------------------------*/
         static string NotFound()
         {
             return GenerateResponse("404", "Not Found");
