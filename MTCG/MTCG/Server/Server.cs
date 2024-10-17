@@ -43,9 +43,16 @@ namespace MTCG.Server
                 using (client)
                 using (NetworkStream stream = client.GetStream())
                 using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
-                using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8){AutoFlush = true}) 
+                using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8) { AutoFlush = true })
                 {
-                    string rawRequest = await reader.ReadToEndAsync();
+                    StringBuilder rawRequestBuilder = new StringBuilder();
+                    string line;
+                    while (!string.IsNullOrEmpty(line = await reader.ReadLineAsync()))
+                    {
+                        rawRequestBuilder.AppendLine(line);
+                    }
+                    string rawRequest = rawRequestBuilder.ToString();
+
                     Routing.HttpRequest request = Parser.Parse(rawRequest);
 
                     Router router = new Router();
@@ -56,7 +63,7 @@ namespace MTCG.Server
                         "NotFound" => GenerateResponse("404 Not Found", "Not Found"),
                         _ => GenerateResponse("200 OK", "Operation successful")
                     };
-                    
+                    Console.WriteLine(response);
                     await writer.WriteAsync(response);
                     await writer.FlushAsync();
                 }
@@ -67,11 +74,12 @@ namespace MTCG.Server
             }
         }
 
+
         static string GenerateResponse(string status, string content)
         {
             return $"HTTP/1.1 {status}\r\n" +
                    "Content-Type: text/plain\r\n" +
-                   $"Content-Length: {content.Length}\r\n" +
+                   $"Content-Length: {Encoding.UTF8.GetByteCount(content)}\r\n" +
                    "Connection: close\r\n" +
                    "\r\n" +
                    $"{content}";
