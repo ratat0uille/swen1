@@ -1,32 +1,27 @@
-﻿namespace MTCG.Routing
+﻿
+namespace MTCG.Routing
 {
     public class Router
     {
-        public string Route(string request)
+        public string Route(HttpRequest request)
         {
-            if (request.StartsWith("GET /login"))
+            if (request == null || string.IsNullOrEmpty(request.Method) || string.IsNullOrEmpty(request.Path))
             {
-                return "HTTP/1.1 200 OK\r\n" +
-                       "Content-Type: text/plain\r\n" +
-                       "Content-Length: 5\r\n" +
-                       "\r\n" +
-                       "Login";
-            }else if (request.StartsWith("GET /register"))
-            {
-                return "HTTP/1.1 200 OK\r\n" +
-                       "Content-Type: text/plain\r\n" +
-                       "Content-Length: 8\r\n" +
-                       "\r\n" +
-                       "Register";
+                return "BadRequest";
             }
-            else
+
+            string method = request.Method;
+            string path = request.Path;
+
+            return path switch
             {
-                return "HTTP/1.1 404 Not Found\r\n" +
-                       "Content-Type: text/plain\r\n" +
-                       "Content-Length: 9\r\n" +
-                       "\r\n" +
-                       "Login";
-            }
+                "/" => "Homepage",
+                "/login" when method == "GET" => "GetLogin",
+                "/register" when method == "GET" => "GetRegister",
+                "/register" when method == "POST" => "PostRegister",
+                "/login" when method == "POST" => "PostLogin",
+                _ => "NotFound"
+            };
         }
     }
 }
