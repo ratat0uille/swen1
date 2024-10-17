@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 
 namespace MTCG.Routing
 {
+    /*----------------------------------CLASS-HTTP-REQUEST-------------------------------------*/
     public class HttpRequest
     {
         public string Method { get; set; } 
@@ -16,6 +17,7 @@ namespace MTCG.Routing
         public string Body { get; set; }
     }
 
+    /*----------------------------------CLASS-PARSER-------------------------------------*/
     public class Parser
     {
         public static async Task<HttpRequest> ParseAsync(Stream stream)
@@ -24,7 +26,7 @@ namespace MTCG.Routing
             {
                 var request = new HttpRequest();
 
-                // Request line
+                /*----------------------------------REQUEST-LINE-------------------------------------*/
                 var requestLine = await reader.ReadLineAsync();
                 if (string.IsNullOrEmpty(requestLine)) throw new ArgumentException("Invalid HTTP request: missing request line.");
 
@@ -35,7 +37,7 @@ namespace MTCG.Routing
                 request.Path = requestLineParts[1];
                 request.HttpVersion = requestLineParts[2];
 
-                // Headers
+                /*----------------------------------HEADERS-------------------------------------*/
                 string line;
                 while (!string.IsNullOrEmpty(line = await reader.ReadLineAsync()))
                 {
@@ -48,7 +50,7 @@ namespace MTCG.Routing
                     request.Headers[headerName] = headerValue;
                 }
 
-                // Body
+                /*----------------------------------BODY-------------------------------------*/
                 if (request.Headers.TryGetValue("Content-Length", out var contentLengthValue) &&
                     int.TryParse(contentLengthValue, out var contentLength) && contentLength > 0)
                 {
@@ -71,6 +73,7 @@ namespace MTCG.Routing
             }
         }
 
+        /*----------------------------------BODY-PARSER-METHOD-------------------------------------*/
         public static (string username, string password) BodyParser(Stream stream, HttpRequest request)
         {
             dynamic userInfo;
