@@ -2,7 +2,6 @@
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
-using System.IO.Pipelines;
 using System.Text;
 using System.Threading.Tasks;
 using MTCG.Routing;
@@ -42,18 +41,9 @@ namespace MTCG.Server
             {
                 using (client)
                 using (NetworkStream stream = client.GetStream())
-                using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
-                using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8) { AutoFlush = true })
+                using (StreamWriter writer = new StreamWriter(stream, new UTF8Encoding(false)) { AutoFlush = true })
                 {
-                    StringBuilder rawRequestBuilder = new StringBuilder();
-                    string line;
-                    while (!string.IsNullOrEmpty(line = await reader.ReadLineAsync()))
-                    {
-                        rawRequestBuilder.AppendLine(line);
-                    }
-                    string rawRequest = rawRequestBuilder.ToString();
-
-                    Routing.HttpRequest request = Parser.Parse(rawRequest);
+                    Routing.HttpRequest request = await Parser.ParseAsync(stream);
 
                     Router router = new Router();
                     string routeResult = router.Route(request);
@@ -73,7 +63,6 @@ namespace MTCG.Server
                 Console.WriteLine($"Error handling client: {exception.Message}");
             }
         }
-
 
         static string GenerateResponse(string status, string content)
         {
