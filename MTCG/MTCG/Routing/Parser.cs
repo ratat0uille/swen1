@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace MTCG.Routing
 {
     public class HttpRequest
     {
-        public string Method { get; set; }
+        public string Method { get; set; } 
         public string Path { get; set; }
         public string HttpVersion { get; set; }
         public Dictionary<string, string> Headers { get; set; } = new();
@@ -25,12 +26,10 @@ namespace MTCG.Routing
 
                 // Request line
                 var requestLine = await reader.ReadLineAsync();
-                if (string.IsNullOrEmpty(requestLine))
-                    throw new ArgumentException("Invalid HTTP request: missing request line.");
+                if (string.IsNullOrEmpty(requestLine)) throw new ArgumentException("Invalid HTTP request: missing request line.");
 
                 var requestLineParts = requestLine.Split(' ');
-                if (requestLineParts.Length != 3)
-                    throw new ArgumentException("Invalid HTTP request: malformed request line.");
+                if (requestLineParts.Length != 3) throw new ArgumentException("Invalid HTTP request: malformed request line.");
 
                 request.Method = requestLineParts[0];
                 request.Path = requestLineParts[1];
@@ -58,8 +57,7 @@ namespace MTCG.Routing
                     while (totalRead < contentLength)
                     {
                         int read = await reader.ReadAsync(buffer, totalRead, contentLength - totalRead);
-                        if (read == 0)
-                            throw new EndOfStreamException("Unexpected end of stream while reading body.");
+                        if (read == 0) throw new EndOfStreamException("Unexpected end of stream while reading body.");
                         totalRead += read;
                     }
                     request.Body = new string(buffer, 0, totalRead);
@@ -71,6 +69,18 @@ namespace MTCG.Routing
 
                 return request;
             }
+        }
+
+        public static (string username, string password) BodyParser(Stream stream, HttpRequest request)
+        {
+            dynamic userInfo;
+
+            userInfo = JsonConvert.DeserializeObject<dynamic>(request.Body);
+
+            string username = userInfo.Username;
+            string password = userInfo.Password;
+
+            return (username, password);
         }
     }
 }

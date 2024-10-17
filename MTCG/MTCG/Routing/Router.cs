@@ -16,10 +16,8 @@ namespace MTCG.Routing
             return path switch
             {
                 "/" => "Homepage",
-                "/login" when method == "GET" => "GetLogin",
-                "/register" when method == "GET" => "GetRegister",
-                "/register" when method == "POST" => "PostRegister",
-                "/login" when method == "POST" => "PostLogin",
+                "/register" when method == "POST" => "Register",
+                "/login" when method == "POST" => "Login",
                 _ => "NotFound"
             };
         }

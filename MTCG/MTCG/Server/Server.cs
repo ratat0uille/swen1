@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Diagnostics.Eventing.Reader;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using MTCG.Routing;
+using Newtonsoft.Json;
+using HttpRequest = MTCG.Routing.HttpRequest;
+using System.Collections.Generic;
 
 namespace MTCG.Server
 {
@@ -47,15 +51,25 @@ namespace MTCG.Server
 
                     Router router = new Router();
                     string routeResult = router.Route(request);
-                    string response = routeResult switch
+                    
+
+                    switch (routeResult)
                     {
-                        "BadRequest" => GenerateResponse("400 Bad Request", "Bad Request"),
-                        "NotFound" => GenerateResponse("404 Not Found", "Not Found"),
-                        _ => GenerateResponse("200 OK", "Operation successful")
-                    };
-                    Console.WriteLine(response);
-                    await writer.WriteAsync(response);
-                    await writer.FlushAsync();
+                        case "NotFound":
+                            WriteResponse(NotFound(), writer);
+                            break;
+                        case "BadRequest":
+                            WriteResponse(BadRequest(), writer);
+                            break;
+                        case "Login":
+                            WriteResponse(Login(request, stream), writer);
+                            break;
+                        case "Register":
+                            WriteResponse(Register(request, stream), writer);
+                            break;
+                    }
+
+
                 }
             }
             catch (Exception exception)
@@ -73,5 +87,89 @@ namespace MTCG.Server
                    "\r\n" +
                    $"{content}";
         }
+
+        static async void WriteResponse(string response, StreamWriter writer)
+        {
+            Console.WriteLine(response);
+            await writer.WriteAsync(response);
+            await writer.FlushAsync();
+        }
+
+        public class Users
+        {
+            public string Username { get; set; }
+            public string Password { get; set; }
+        }
+        static string Login(HttpRequest request, Stream stream)
+        {
+            // 200 OK
+            // 401 Unauthorized
+            string response;
+            var (username, password) = Parser.BodyParser(stream, request);
+
+            string filePath = "../UserData/users.json";
+
+            if (!File.Exists(filePath))
+            {
+                return GenerateResponse("404", "Not Found");
+
+            }
+
+            var users = JsonConvert.DeserializeObject<List<Users>>(File.ReadAllText(filePath)) ?? new List<Users>();
+
+            var user = users.Find(u => u.Username == username && u.Password == password);
+
+            if (user != null)
+            {
+                return GenerateResponse("200", "OK");
+            }
+            else
+            {
+                return GenerateResponse("401", "Invalid username or password");
+
+            }
+
+        }
+
+        static string Register(HttpRequest request, Stream stream)
+        {
+            // 201 created
+            // 409 User already exists
+
+            var (username, password) = Parser.BodyParser(stream, request);
+            
+            string filePath = "../UserData/users.json";
+            
+            if (!File.Exists(filePath))
+            {
+                File.WriteAllText(filePath, "[]");
+            }
+
+            var users = JsonConvert.DeserializeObject<List<Users>>(File.ReadAllText(filePath)) ?? new List<Users>();
+
+            if (users.Exists(user => user.Username == username))
+            {
+
+                return GenerateResponse("409", "User already exists");
+            }
+
+            users.Add(new Users{Username = username, Password = password});
+            
+            File.WriteAllText(filePath, JsonConvert.SerializeObject(users, Formatting.Indented));
+            
+            return GenerateResponse("201", "User created");
+            
+        }
+
+        static string BadRequest()
+        {
+            return GenerateResponse("400", "Bad Request");
+        }
+
+        static string NotFound()
+        {
+            return GenerateResponse("404", "Not Found");
+        }
+
     }
 }
