@@ -18,9 +18,9 @@ namespace MTCG.Server
         /*----------------------------------START-ASYNC-------------------------------------*/
         public static async Task StartAsync()
         {
-            TcpListener listener = new TcpListener(IPAddress.Any, 8080);
+            TcpListener listener = new TcpListener(IPAddress.Any, 10001);
             listener.Start();
-            Console.WriteLine("Server started on port 8080...");
+            Console.WriteLine("Server started on port 10001...");
 
             try
             {
@@ -42,7 +42,7 @@ namespace MTCG.Server
         }
 
         /*--------------------------------HANDLE-CLIENT-ASYNC---------------------------------------*/
-        static async Task HandleClientAsync(TcpClient client)
+        private static async Task HandleClientAsync(TcpClient client)
         {
             try
             {
@@ -70,8 +70,10 @@ namespace MTCG.Server
                         case "Register":
                             WriteResponse(Register(request, stream), writer);
                             break;
+                        default:
+                            WriteResponse(NotFound(), writer);
+                            break;
                     }
-
 
                 }
             }
