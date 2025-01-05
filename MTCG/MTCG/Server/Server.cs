@@ -9,6 +9,7 @@ using MTCG.Routing;
 using Newtonsoft.Json;
 using HttpRequest = MTCG.Routing.HttpRequest;
 using System.Collections.Generic;
+using MTCG.Models;
 
 namespace MTCG.Server
 {
@@ -80,13 +81,6 @@ namespace MTCG.Server
             }
         }
 
-        /*----------------------------------CLASS-USERS-------------------------------------*/
-        //sollt ich probably in seiner eigenen file machen aber kein bock jetzt
-        public class Users
-        {
-            public string Username { get; set; }
-            public string Password { get; set; }
-        }
 
         /*--------------------------------GENERATE-RESPONSE---------------------------------------*/
         static string GenerateResponse(string status, string content)

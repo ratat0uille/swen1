@@ -2,10 +2,9 @@
 
 namespace MTCG.Models
 {
-    public class UserModel
+    public class Users
     {
-        [Required]
-        [MinLength(3)]
-        public string Name { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
     }
 }
