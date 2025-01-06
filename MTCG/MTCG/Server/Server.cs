@@ -5,10 +5,10 @@ using System.Net.Sockets;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using MTCG.Routing;
 using Newtonsoft.Json;
 using HttpRequest = MTCG.Routing.HttpRequest;
 using System.Collections.Generic;
+using MTCG.Routing;
 using MTCG.Models;
 
 namespace MTCG.Server
@@ -98,6 +98,12 @@ namespace MTCG.Server
                             break;
                         case "BadRequest":
                             WriteResponse(BadRequest(), writer);
+                            break;
+                        case "MethodNotAllowed":
+                            WriteResponse(MethodNotAllowed(), writer);
+                            break;
+                        case "Unauthorized":
+                            WriteResponse(Unauthorized(), writer);
                             break;
                         case "Login":
                             WriteResponse(Login(request, stream), writer); //callt die login method und übergibt
@@ -264,6 +270,20 @@ namespace MTCG.Server
         static string NotFound()
         {
             return GenerateResponse("404", "Not Found");
+        }
+
+        /*----------------------------405-METHOD-NOT-ALLOWED-METHOD---------------------------------*/
+
+        static string MethodNotAllowed()
+        {
+            return GenerateResponse("405", "Method Not Allowed");
+        }
+
+        /*-----------------------------------401-UNAUTHORIZED----------------------------------------*/
+
+        static string Unauthorized()
+        {
+            return GenerateResponse("401", "Unauthorized");
         }
 
     }
