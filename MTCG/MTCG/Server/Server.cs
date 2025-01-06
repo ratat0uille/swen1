@@ -32,7 +32,7 @@ namespace MTCG.Server
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception.ToString());
+                Console.WriteLine($"Server error: {exception.Message}");
             }
             finally
             {
